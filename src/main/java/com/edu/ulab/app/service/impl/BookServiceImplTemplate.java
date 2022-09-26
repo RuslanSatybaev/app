@@ -12,6 +12,8 @@ import org.springframework.stereotype.Service;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 @Slf4j
@@ -19,6 +21,7 @@ import java.util.Objects;
 public class BookServiceImplTemplate implements BookService {
 
     private final JdbcTemplate jdbcTemplate;
+//    private final JdbcOperations jdbcOperations;
 
     public BookServiceImplTemplate(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
@@ -54,12 +57,39 @@ public class BookServiceImplTemplate implements BookService {
 
     @Override
     public BookDto getBookById(Long id) {
-        // реализовать недстающие методы
-        return null;
+        String GET_BOOKS_SQL = "SELECT * FROM BOOK WHERE ID = ?";
+
+        return jdbcTemplate.queryForObject(GET_BOOKS_SQL, new Object[]{id}, (rs, rowNum) ->
+                new BookDto(
+                        rs.getLong("ID"),
+                        rs.getLong("USER_ID"),
+                        rs.getString("TITLE"),
+                        rs.getString("AUTHOR"),
+                        rs.getLong("PAGE_COUNT")
+
+                ));
     }
 
     @Override
     public void deleteBookById(Long id) {
         // реализовать недстающие методы
+    }
+
+    @Override
+    public void deleteBooksByUserId(Long userId) {
+
+    }
+
+    @Override
+    public List<Long> getBooksIdByUserId(Long userId) {
+        String GET_BOOKS_SQL = "SELECT ID FROM BOOK WHERE USER_ID = ?";
+        List<BookDto> bookDto = jdbcTemplate.query(GET_BOOKS_SQL, new Object[]{userId}, (rs, rowNum) ->
+                new BookDto(
+                        rs.getLong("ID")
+                ));
+        List<Long> booksIdList = new ArrayList<>();
+        assert bookDto != null;
+        booksIdList.add(bookDto.stream().map(BookDto::getId).count());
+        return  booksIdList;
     }
 }
