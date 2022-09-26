@@ -4,14 +4,11 @@ import com.edu.ulab.app.dto.UserDto;
 import com.edu.ulab.app.service.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.PreparedStatementCreator;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Service;
 
-import java.sql.Connection;
 import java.sql.PreparedStatement;
-import java.sql.SQLException;
 import java.util.Objects;
 
 @Slf4j
@@ -49,8 +46,15 @@ public class UserServiceImplTemplate implements UserService {
 
     @Override
     public UserDto getUserById(Long id) {
-        // реализовать недстающие методы
-        return null;
+        String GET_SQL = "SELECT * FROM PERSON WHERE ID = ?";
+
+        return jdbcTemplate.queryForObject(GET_SQL, new Object[]{id}, (rs, rowNum) ->
+                new UserDto(
+                        rs.getLong("ID"),
+                        rs.getString("FULL_NAME"),
+                        rs.getString("TITLE"),
+                        rs.getInt("AGE")
+                ));
     }
 
     @Override
